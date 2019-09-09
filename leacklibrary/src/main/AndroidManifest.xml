@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.pplive.sdk.leacklibrary">
+    <!-- To store the heap dumps and leak analysis results. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <application>
+        <service
+            android:name=".heap.AnalyzerServers"
+            android:enabled="false"
+            android:process=":guard" />
+        <activity android:name=".activity.HeapMainActivity" />
+        <activity
+            android:name=".activity.HeapActivity"
+            android:icon="@drawable/icon">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent-filter>
+        </activity>
+    </application>
+</manifest>
