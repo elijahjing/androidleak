@@ -3,6 +3,7 @@ package com.pplive.sdk.leacklibrary.analysis;
 import android.os.Looper;
 import android.util.Log;
 
+import com.pplive.sdk.leacklibrary.AndroidLeak;
 import com.pplive.sdk.leacklibrary.heap.AnalysisResult;
 import com.pplive.sdk.leacklibrary.heap.HeapDump;
 
@@ -14,14 +15,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.pplive.sdk.leacklibrary.AndroidLeak.application;
 import static com.pplive.sdk.leacklibrary.Constants.THREAD_NAME;
 
 public class AnalysisResultSave {
     //保留解析数据
     public static void analysis(HeapDump heapDump, AnalysisResult result) {
         Log.d(THREAD_NAME, "4-" + isMainThread());
+        String leakInfo =  AndroidLeak.leakInfo(application, heapDump, result, true);
+        Log.d("%s", leakInfo);
 
         boolean shouldSaveResult = result.leakFound || result.failure != null;
+        Log.d(THREAD_NAME, "4---" + result.leakFound+"==="+(result.failure != null));
+
         if (shouldSaveResult) {
             heapDump = renameHeapdump(heapDump);
             saveResult(heapDump, result);

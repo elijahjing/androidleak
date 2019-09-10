@@ -32,6 +32,8 @@ import static com.pplive.sdk.leacklibrary.Utils.checkNotNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 class Observer {
+    public static final Observer DISABLED = new Observer();
+
     private Set<String> retainedKeys;
     private ReferenceQueue<Object> queue;
     private GcTrigger gcTrigger;
@@ -48,8 +50,10 @@ class Observer {
     }
 
     void addObserver(Object observer, String referenceName) {
+        if (this == DISABLED) {
+            return;
+        }
         checkNotNull(observer, "activity");
-        checkNotNull(observer, "watchedReference");
         checkNotNull(referenceName, "referenceName");
         final long watchStartNanoTime = System.nanoTime();
         String key = UUID.randomUUID().toString();
@@ -95,18 +99,16 @@ class Observer {
                     .computeRetainedHeapSize(true)
                     .reachabilityInspectorClasses(defaultReachabilityInspectorClasses())
                     .build();
+
+            //向子进程发送dump文件  让子进程处理文件
+            Log.d(THREAD_NAME, "1-" + isMainThread());
+            AnalyzerServers.runAnalysis(context, heapDump);
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(context, reference.name + "  有内存泄漏！开始分析... ", Toast.LENGTH_SHORT).show();
                 }
             });
-            //向子进程发送dump文件  让子进程处理文件
-            Log.d(THREAD_NAME, "1-" + isMainThread());
-
-            AnalyzerServers.runAnalysis(context, heapDump);
-
-
         }
         return Retryable.Result.DONE;
     }

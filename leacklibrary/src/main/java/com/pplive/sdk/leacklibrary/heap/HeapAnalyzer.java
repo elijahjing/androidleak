@@ -183,7 +183,6 @@ public final class HeapAnalyzer {
       if (leakingRef == null) {
         return noLeak(since(analysisStartNanoTime));
       }
-      Log.e("sddsd",""+computeRetainedSize);
       return findLeakTrace(analysisStartNanoTime, snapshot, leakingRef, computeRetainedSize);
     } catch (Throwable e) {
       return failure(e, since(analysisStartNanoTime));

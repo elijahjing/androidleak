@@ -6,12 +6,14 @@ import android.support.annotation.ColorRes;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.pplive.sdk.leacklibrary.R;
 import com.pplive.sdk.leacklibrary.heap.Exclusion;
 import com.pplive.sdk.leacklibrary.heap.LeakTrace;
@@ -85,6 +87,7 @@ public class MainAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
         LeakTraceElement leakTraceElement = (LeakTraceElement) getItem(position);
+        Log.e("---addd,",""+new Gson().toJson(leakTraceElement));
         viewHolder.name.setText(htmlTitle(leakTraceElement, false, context.getResources()));
         viewHolder.detail.setText(htmlDetails(true, leakTraceElement));
         view.setOnClickListener(new View.OnClickListener() {
