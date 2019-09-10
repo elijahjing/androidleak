@@ -7,13 +7,15 @@
 
     <Button
         android:id="@+id/bottom_test"
-        android:layout_width="100px"
-        android:layout_height="100px"
+        android:layout_width="100dp"
+        android:layout_weight="1"
+        android:layout_height="100dp"
         android:text="点击跳转" />
 
     <Button
         android:id="@+id/bottom_test2"
-        android:layout_width="100px"
-        android:layout_height="100px"
+        android:layout_width="100dp"
+        android:layout_weight="1"
+        android:layout_height="100dp"
         android:text="查看内存" />
 </LinearLayout>

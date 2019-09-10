@@ -1,5 +1,6 @@
 package com.pplive.sdk.leacklibrary.analysis;
 
+import android.os.Looper;
 import android.util.Log;
 
 import com.pplive.sdk.leacklibrary.heap.AnalysisResult;
@@ -13,14 +14,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.pplive.sdk.leacklibrary.Constants.THREAD_NAME;
+
 public class AnalysisResultSave {
     //保留解析数据
     public static void analysis(HeapDump heapDump, AnalysisResult result) {
+        Log.d(THREAD_NAME, "4-" + isMainThread());
+
         boolean shouldSaveResult = result.leakFound || result.failure != null;
         if (shouldSaveResult) {
             heapDump = renameHeapdump(heapDump);
             saveResult(heapDump, result);
         }
+
     }
 
     private static boolean saveResult(HeapDump heapDump, AnalysisResult result) {
@@ -52,5 +58,9 @@ public class AnalysisResultSave {
         File newFile = new File(heapDump.heapDumpFile.getParent(), fileName);
         heapDump.heapDumpFile.renameTo(newFile);
         return heapDump.buildUpon().heapDumpFile(newFile).build();
+    }
+
+    public static boolean isMainThread() {
+        return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 }
