@@ -56,24 +56,9 @@ public class HeapActivity extends Activity implements MyAdapter.OnClick {
             }
         });
         listView = findViewById(R.id.listView);
-        setViewTreeObserver(listView);
-
     }
 
-    public static void setViewTreeObserver(View v) {
-        v.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
 
-            View view = v.findFocus();
-            if (view != null) {
-                Log.e("焦点已经改变", "" + view);
-            } else {
-                Log.e("焦点已经改变", "null");
-
-            }
-
-        });
-
-    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -113,7 +98,7 @@ public class HeapActivity extends Activity implements MyAdapter.OnClick {
         startActivity(intent1);
     }
 
-    void deleteVisibleLeak(int pos) {
+    void deleteVisibleLeak(final int pos) {
         AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {

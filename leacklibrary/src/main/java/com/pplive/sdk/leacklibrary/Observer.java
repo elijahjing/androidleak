@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import com.pplive.sdk.leacklibrary.heap.AnalyzerServers;
 import com.pplive.sdk.leacklibrary.heap.ExcludedRefs;
-import com.pplive.sdk.leacklibrary.heap.HeapBean;
 import com.pplive.sdk.leacklibrary.heap.HeapDump;
 import com.pplive.sdk.leacklibrary.heap.Reachability;
 
@@ -24,30 +23,29 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static com.pplive.sdk.leacklibrary.Constants.HPROF_PATH;
 import static com.pplive.sdk.leacklibrary.Retryable.Result.RETRY;
 import static com.pplive.sdk.leacklibrary.Utils.checkNotNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class Observer {
+class Observer {
     private Set<String> retainedKeys;
     private ReferenceQueue<Object> queue;
     private GcTrigger gcTrigger;
-    ObserverExecutor observerExecutor;
-    Context context;
+    private ObserverExecutor observerExecutor;
+    private Context context;
 
-    public Observer init(Context context) {
+    Observer init(Context context) {
         this.context = context;
         queue = new ReferenceQueue<>();
         retainedKeys = new CopyOnWriteArraySet<>();
         gcTrigger = GcTrigger.DEFAULT;
         observerExecutor = new AndroidExecutor();
         return this;
-
     }
 
-    public void addObserver(Object observer, String referenceName) {
+    void addObserver(Object observer, String referenceName) {
         checkNotNull(observer, "activity");
-        final long observerAddTime = System.currentTimeMillis();
         checkNotNull(observer, "watchedReference");
         checkNotNull(referenceName, "referenceName");
         final long watchStartNanoTime = System.nanoTime();
@@ -75,7 +73,6 @@ public class Observer {
         if (!recycle(reference)) {
             long startDumpHeap = System.nanoTime();
             long gcDurationMs = NANOSECONDS.toMillis(startDumpHeap - gcStartNanoTime);
-            Log.e("----对象没有被回收-----", "" + reference.toString());
             Toast.makeText(context,reference.name+"  有内存泄漏！开始采集...",Toast.LENGTH_LONG).show();
             //把文件保存在new  file的路径 方便后续分析取出
             String heapDumpFile=createDumpFile();
@@ -90,6 +87,7 @@ public class Observer {
                     .gcDurationMs(gcDurationMs)
                     .heapDumpDurationMs(heapDumpDurationMs)
                     .excludedRefs(defaultExcludedRefs())
+                    .computeRetainedHeapSize(true)
                     .reachabilityInspectorClasses(defaultReachabilityInspectorClasses())
                     .build();
             //向子进程发送dump文件  让子进程处理文件
@@ -98,24 +96,22 @@ public class Observer {
         }
         return Retryable.Result.DONE;
     }
-    protected List<Class<? extends Reachability.Inspector>> defaultReachabilityInspectorClasses() {
+    private List<Class<? extends Reachability.Inspector>> defaultReachabilityInspectorClasses() {
         return Collections.emptyList();
     }
-    protected ExcludedRefs defaultExcludedRefs() {
+    private ExcludedRefs defaultExcludedRefs() {
         return ExcludedRefs.builder().build();
     }
 
-    public String createDumpFile() {
+    private String createDumpFile() {
         String state = android.os.Environment.getExternalStorageState();
         // 判断SdCard是否存在并且是可用的
         if (android.os.Environment.MEDIA_MOUNTED.equals(state)) {
             String hprofPath ;
-            String LOG_PATH = "/dumpGcFile/";
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ssss", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ssss", Locale.CHINA);
             String createTime = sdf.format(new Date(System.currentTimeMillis()));
-
             // 判断SdCard是否存在并且是可用的
-                File file = new File(Environment.getExternalStorageDirectory().getPath() + LOG_PATH + "/" + "leak_" + context.getPackageName());
+                File file = new File(Environment.getExternalStorageDirectory().getPath() + HPROF_PATH +  context.getPackageName());
                 if (!file.exists()) {
                     file.mkdirs();
                 }
@@ -124,7 +120,7 @@ public class Observer {
                     Debug.dumpHprofData(hprofPath);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.d("保存", "保存失败");
+                    Log.e("保存", "保存失败");
                     return hprofPath;
                 }
                 Log.d("保存", "保存成功!");
@@ -142,7 +138,6 @@ public class Observer {
         private void removeWeaklyReachableReferences () {
             LeakWeakReference ref;
             while ((ref = (LeakWeakReference) queue.poll()) != null) {
-                Log.e("对象已经被回收" + ref.key, "对象已经被回收");
                 retainedKeys.remove(ref.key);
             }
         }

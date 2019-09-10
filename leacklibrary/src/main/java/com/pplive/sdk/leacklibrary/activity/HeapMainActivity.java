@@ -32,26 +32,12 @@ public class HeapMainActivity extends AppCompatActivity {
             referenceName = intent.getStringExtra(SHOW_DETAIL_EXTRA);
         }
         listView = findViewById(R.id.listview_main);
-        setViewTreeObserver(view);
         analysisResult= result;
         updateUi();
     }
 
 
-    public static void setViewTreeObserver(View v) {
-        v.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
 
-            View view = v.findFocus();
-            if (view != null) {
-                Log.e("焦点已经改变", "" + view);
-            } else {
-                Log.e("焦点已经改变", "null");
-
-            }
-
-        });
-
-    }
     public void updateUi() {
         Log.e("sddddsdsdd", "" + new Gson().toJson(analysisResult).toString());
 

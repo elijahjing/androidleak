@@ -1,8 +1,8 @@
 package com.pplive.sdk.leacklibrary.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,14 +25,14 @@ public class MyAdapter extends BaseAdapter {
     private Context context;
     private OnClick onClick;
 
-    public MyAdapter(List<Leak> leaks, Context context) {
+    MyAdapter(List<Leak> leaks, Context context) {
         this.context = context;
         this.leaks = leaks;
         this.inflater = LayoutInflater.from(context);
 
     }
 
-    public void setData(List<Leak> leaks) {
+    void setData(List<Leak> leaks) {
         this.leaks = leaks;
         notifyDataSetChanged();
     }
@@ -52,8 +52,9 @@ public class MyAdapter extends BaseAdapter {
         return position;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view;
         ViewHolder viewHolder;
         if (convertView == null) {
@@ -71,7 +72,7 @@ public class MyAdapter extends BaseAdapter {
         }
         Leak leak = (Leak) getItem(position);
         viewHolder.name.setText(leak.result.className);
-        viewHolder.time.setText(getTime(leak.resultFileLastModified));
+        viewHolder.time.setText(context.getString(R.string.time) + getTime(leak.resultFileLastModified));
         viewHolder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,22 +89,24 @@ public class MyAdapter extends BaseAdapter {
                 }
             }
         });
-        if(position==0){
+        if (position == 0) {
             viewHolder.detail.requestFocus();
         }
         if (leak.result.retainedHeapSize != AnalysisResult.RETAINED_HEAP_SKIPPED) {
             String size = formatShortFileSize(context, leak.result.retainedHeapSize);
-            viewHolder.size.setText(size);
+            viewHolder.size.setText(context.getString(R.string.size) + size);
+
         }
         return view;
     }
 
-    public void setOnDelete(OnClick onClick) {
+    void setOnDelete(OnClick onClick) {
         this.onClick = onClick;
     }
 
     public interface OnClick {
         void delete(int pos);
+
         void onClick(int pos);
 
     }
@@ -112,10 +115,10 @@ public class MyAdapter extends BaseAdapter {
         TextView name;
         TextView time;
         TextView size;
-        Button delete,detail;
+        Button delete, detail;
     }
 
-    public String getTime(long time) {
+    private String getTime(long time) {
         return DateUtils.formatDateTime(context, time,
                 FORMAT_SHOW_TIME);
     }

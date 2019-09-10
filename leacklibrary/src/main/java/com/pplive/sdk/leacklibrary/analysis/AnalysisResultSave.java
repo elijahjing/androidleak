@@ -13,22 +13,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class AnalysisHeap {
-    //开始解析数据
-    public static void analysis(HeapDump heapDump,AnalysisResult result){
-        boolean resultSaved = false;
-
+public class AnalysisResultSave {
+    //保留解析数据
+    public static void analysis(HeapDump heapDump, AnalysisResult result) {
         boolean shouldSaveResult = result.leakFound || result.failure != null;
         if (shouldSaveResult) {
             heapDump = renameHeapdump(heapDump);
-            resultSaved = saveResult(heapDump, result);
-            Log.e("发现内存泄漏",result.className);
+            saveResult(heapDump, result);
         }
     }
+
     private static boolean saveResult(HeapDump heapDump, AnalysisResult result) {
         File resultFile = new File(heapDump.heapDumpFile.getParentFile(),
                 heapDump.heapDumpFile.getName() + ".result");
-        FileOutputStream fos = null;
+        FileOutputStream fos;
         try {
             fos = new FileOutputStream(resultFile);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -36,14 +34,7 @@ public class AnalysisHeap {
             oos.writeObject(result);
             return true;
         } catch (IOException e) {
-            Log.d("--", "Could not save leak analysis result to disk.");
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException ignored) {
-                }
-            }
+            Log.e("AnalysisResultSave", "Could not save leak analysis result to disk.");
         }
         return false;
     }
@@ -51,18 +42,15 @@ public class AnalysisHeap {
 
     /**
      * 保留解析的结果
+     *
      * @param heapDump
      * @return
      */
     private static HeapDump renameHeapdump(HeapDump heapDump) {
         String fileName =
-                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS'.hprof'", Locale.US).format(new Date());
-
+                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS'.hprof'", Locale.CHINA).format(new Date());
         File newFile = new File(heapDump.heapDumpFile.getParent(), fileName);
-        boolean renamed = heapDump.heapDumpFile.renameTo(newFile);
-        if (!renamed) {
-            Log.d("文件转移", heapDump.heapDumpFile.getPath() + "====" + newFile.getPath());
-        }
+        heapDump.heapDumpFile.renameTo(newFile);
         return heapDump.buildUpon().heapDumpFile(newFile).build();
     }
 }

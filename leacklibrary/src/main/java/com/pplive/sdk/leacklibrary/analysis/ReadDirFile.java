@@ -15,6 +15,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.M;
+import static com.pplive.sdk.leacklibrary.Constants.HPROF_PATH;
 
 public class ReadDirFile {
 
@@ -62,8 +63,7 @@ public class ReadDirFile {
     }
 
     private File externalStorageDirectory() {
-        String LOG_PATH = "/dumpGcFile/";
-        return new File(Environment.getExternalStorageDirectory().getPath() + LOG_PATH + "leak_" + context.getPackageName());
+        return new File(Environment.getExternalStorageDirectory().getPath() + HPROF_PATH +  context.getPackageName());
     }
     public void clearLeakDirectory() {
         List<File> allFilesExceptPending = listFiles(new FilenameFilter() {

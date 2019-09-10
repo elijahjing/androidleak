@@ -6,7 +6,6 @@ import android.support.annotation.ColorRes;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +27,7 @@ public class MainAdapter extends BaseAdapter {
     private String referenceColorHexString;
     private Context context;
     private String extraColorHexString;
-    private String helpColorHexString;
-    private String referenceName = "";
+    private String referenceName ;
 
 
     // https://stackoverflow.com/a/6540378/703646
@@ -37,7 +35,7 @@ public class MainAdapter extends BaseAdapter {
         return String.format("#%06X", (0xFFFFFF & resources.getColor(colorResId)));
     }
 
-    public MainAdapter(LeakTrace leaks, Context context, String referenceName) {
+    MainAdapter(LeakTrace leaks, Context context, String referenceName) {
         this.leakTrace = leaks;
         this.context = context;
         this.referenceName = referenceName;
@@ -46,10 +44,9 @@ public class MainAdapter extends BaseAdapter {
         leakColorHexString = hexStringColor(context.getResources(), R.color.leak_canary_leak);
         referenceColorHexString = hexStringColor(context.getResources(), R.color.leak_canary_reference);
         extraColorHexString = hexStringColor(context.getResources(), R.color.leak_canary_extra);
-        helpColorHexString = hexStringColor(context.getResources(), R.color.leak_canary_help);
     }
 
-    public void setData(LeakTrace leaks, String referenceName) {
+    void setData(LeakTrace leaks, String referenceName) {
         this.leakTrace = leaks;
         this.referenceName = referenceName;
         notifyDataSetChanged();
@@ -74,7 +71,7 @@ public class MainAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View view;
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
             view = inflater.inflate(R.layout.layout_leak_item, null);
@@ -87,8 +84,6 @@ public class MainAdapter extends BaseAdapter {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
-        Log.e("dsdsdsdsds",""+position);
-
         LeakTraceElement leakTraceElement = (LeakTraceElement) getItem(position);
         viewHolder.name.setText(htmlTitle(leakTraceElement, false, context.getResources()));
         viewHolder.detail.setText(htmlDetails(true, leakTraceElement));
@@ -146,13 +141,11 @@ public class MainAdapter extends BaseAdapter {
         if (isLeakingInstance && !referenceName.equals("")) {
             htmlString += " <font color='" + extraColorHexString + "'>" + referenceName + "</font>";
         }
-
         return Html.fromHtml(htmlString);
     }
 
     private Spanned htmlTitle(LeakTraceElement element, boolean maybeLeakCause, Resources resources) {
         String htmlString = "";
-
         String simpleName = element.getSimpleClassName();
         simpleName = simpleName.replace("[]", "[ ]");
 

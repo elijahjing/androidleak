@@ -17,7 +17,6 @@ package com.pplive.sdk.leacklibrary.heap;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.pplive.sdk.leacklibrary.LeakWeakReference;
 import com.squareup.haha.perflib.ArrayInstance;
 import com.squareup.haha.perflib.ClassInstance;
@@ -77,6 +76,8 @@ import static com.pplive.sdk.leacklibrary.heap.Reachability.UNREACHABLE;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
+ *
+ * 内存分析器
  */
 public final class HeapAnalyzer {
 
@@ -153,16 +154,20 @@ public final class HeapAnalyzer {
     return checkForLeak(heapDumpFile, referenceKey, true);
   }
 
-
+  /**
+   * check leack use haha
+   * @param heapDumpFile
+   * @param referenceKey
+   * @param computeRetainedSize
+   * @return
+   */
   public AnalysisResult checkForLeak(File heapDumpFile, String referenceKey,
                                      boolean computeRetainedSize) {
     long analysisStartNanoTime = System.nanoTime();
-
     if (!heapDumpFile.exists()) {
       Exception exception = new IllegalArgumentException("File does not exist: " + heapDumpFile);
       return failure(exception, since(analysisStartNanoTime));
     }
-
     try {
       listener.onProgressUpdate(READING_HEAP_DUMP_FILE);
       HprofBuffer buffer = new MemoryMappedFileBuffer(heapDumpFile);

@@ -1,7 +1,6 @@
 package com.pplive.sdk.leacklibrary;
 
 /**
- * A {@link WatchExecutor} is in charge of executing a {@link Retryable} in the future, and retry
  * later if needed.
  */
 public interface ObserverExecutor {
